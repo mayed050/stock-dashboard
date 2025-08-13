@@ -1,14 +1,34 @@
-import dynamic from 'next/dynamic';
-const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
+import { Line } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
 
-export default function LineChart({ series = [], title = 'Line' }) {
-  const data = series.map(s => ({
-    x: s.x, y: s.y, type: 'scatter', mode: 'lines', name: s.name
-  }));
-  const layout = { title, autosize: true, margin: { t: 40, r: 20, b: 40, l: 50 } };
-  return (
-    <div className="w-full h-[320px]">
-      <Plot data={data} layout={layout} useResizeHandler style={{ width: '100%', height: '100%' }} />
-    </div>
-  );
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+
+export default function LineChart() {
+  const data = {
+    labels: ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو'],
+    datasets: [
+      {
+        label: 'سعر الإغلاق',
+        data: [2.5, 2.6, 2.7, 2.8, 2.75, 2.73],
+        borderColor: 'rgb(59, 130, 246)',
+        backgroundColor: 'rgba(59, 130, 246, 0.5)',
+        tension: 0.1,
+      },
+    ],
+  };
+
+  const options = {
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+      title: {
+        display: true,
+        text: 'أداء السهم (6 أشهر)',
+      },
+    },
+  };
+
+  return <Line options={options} data={data} />;
 }
