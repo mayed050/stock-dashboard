@@ -1,35 +1,48 @@
-import { useEffect, useState } from 'react';
-import Link from 'next/link';
-import LineChart from '@/components/LineChart';
-import Notifications from '@/components/Notifications';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import Navigation from '../components/Navigation';
+import StockCard from '../components/StockCard';
 
 export default function Home() {
-  const [data, setData] = useState([]);
+  const [stocks, setStocks] = useState({});
+  const router = useRouter();
 
   useEffect(() => {
     fetch('/stocks_data.json')
-      .then(r => r.json())
-      .then(setData)
-      .catch(() => setData([]));
+      .then(response => response.json())
+      .then(data => {
+        const { metadata, ...stocksData } = data;
+        setStocks(stocksData);
+      })
+      .catch(error => console.error('Error fetching data:', error));
   }, []);
 
   return (
-    <div className="space-y-6">
-      <section className="grid md:grid-cols-2 gap-4">
-        {data.map(s => (
-          <div key={s.symbol} className="rounded-2xl border bg-white p-4 shadow">
-            <div className="flex items-center justify-between">
-              <h2 className="font-semibold text-lg">{s.symbol}</h2>
-              <Link href={`/stocks/${s.symbol}`} className="text-indigo-600 hover:underline">عرض</Link>
-            </div>
-            <p className="text-sm opacity-70">آخر سعر: {Number(s.last).toLocaleString('en-US', { maximumFractionDigits: 3 })}</p>
-            <div className="mt-3">
-              <LineChart title={`إغلاق ${s.symbol}`} series={[{ name: s.symbol, x: s.history?.map(h => h.date), y: s.history?.map(h => h.close) }]} />
-            </div>
-          </div>
-        ))}
-      </section>
-      <Notifications />
+    <div className="min-h-screen bg-gray-100">
+      <Navigation />
+      <div className="p-8">
+        <h1 className="text-3xl font-bold text-center mb-8">لوحة متابعة الأسهم</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {Object.entries(stocks).map(([name, data]) => (
+            <StockCard key={name} name={name} data={data} />
+          ))}
+        </div>
+        
+        <div className="text-center mt-8">
+          <button 
+            onClick={() => router.push('/portfolio')}
+            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 mr-4"
+          >
+            عرض محفظتي الاستثمارية
+          </button>
+          <button 
+            onClick={() => router.push('/stocks/DEWA')}
+            className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700"
+          >
+            عرض تحليل DEWA التفصيلي
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
