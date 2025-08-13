@@ -1,29 +1,38 @@
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import { useState } from 'react';
+import { pdf } from '@react-pdf/renderer';
+import { DownloadIcon } from '@heroicons/react/24/outline';
+import StockReportPDF from './StockReportPDF';
 
-export default function DownloadReport({ symbol, snapshot = {}, ratios = [] }) {
-  const handleDownload = () => {
-    const doc = new jsPDF({ orientation: 'p', unit: 'pt', format: 'a4' });
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Stock Report: ${symbol}`, 40, 40);
+export default function DownloadReport({ stockData, symbol }) {
+  const [loading, setLoading] = useState(false);
 
-    const tableBody = ratios.map(r => [r.name, r.value]);
-    // @ts-ignore
-    doc.autoTable({ startY: 60, head: [["Metric", "Value"]], body: tableBody });
-
-    doc.text('Snapshot', 40, doc.lastAutoTable ? doc.lastAutoTable.finalY + 30 : 100);
-    const snapY = doc.lastAutoTable ? doc.lastAutoTable.finalY + 50 : 120;
-
-    Object.entries(snapshot).forEach(([k, v], i) => {
-      doc.text(`${k}: ${v}`, 40, snapY + i * 18);
-    });
-
-    doc.save(`${symbol}_report.pdf`);
+  const generatePDF = async () => {
+    setLoading(true);
+    try {
+      const blob = await pdf(<StockReportPDF stockData={stockData} symbol={symbol} />).toBlob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `تقرير_${symbol}_${new Date().toLocaleDateString()}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <button onClick={handleDownload} className="px-4 py-2 rounded-2xl bg-indigo-600 text-white hover:bg-indigo-700 shadow">
-      تنزيل تقرير PDF
+    <button
+      onClick={generatePDF}
+      disabled={loading}
+      className="flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg hover:bg-red-700 disabled:opacity-50"
+    >
+      <DownloadIcon className="h-5 w-5" />
+      {loading ? 'جاري الإنشاء...' : 'تحميل التقرير PDF'}
     </button>
   );
 }
