@@ -1,38 +1,44 @@
-import { usePortfolio } from '@/context/PortfolioContext';
-import Portfolio from '@/components/Portfolio';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Navigation from '../components/Navigation';
+import Portfolio from '../components/Portfolio';
 
 export default function PortfolioPage() {
-  const { addHolding } = usePortfolio();
-  const [symbol, setSymbol] = useState('DEWA');
-  const [price, setPrice] = useState('2.5');
-  const [change, setChange] = useState('0.0');
+  const [currentPrices, setCurrentPrices] = useState({});
 
-  const add = () => {
-    addHolding({ symbol: symbol.toUpperCase(), price: Number(price), change: Number(change) });
-  };
+  useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        const response = await fetch('/stocks_data.json');
+        const data = await response.json();
+        
+        const prices = {};
+        Object.keys(data).forEach(symbol => {
+          if (symbol !== 'metadata') {
+            prices[symbol] = parseFloat(data[symbol].price) || 0;
+          }
+        });
+        
+        setCurrentPrices(prices);
+      } catch (error) {
+        console.error('Error fetching prices:', error);
+      }
+    };
+
+    fetchPrices();
+    const interval = setInterval(fetchPrices, 60000);
+    
+    return () => clearInterval(interval);
+  }, []);
 
   return (
-    <div className="space-y-4">
-      <div className="rounded-2xl border bg-white p-4 shadow">
-        <h1 className="font-semibold mb-3">إدارة المحفظة</h1>
-        <div className="flex flex-wrap gap-2 items-end">
-          <div>
-            <label className="text-sm">الرمز</label>
-            <input value={symbol} onChange={e => setSymbol(e.target.value)} className="input" />
-          </div>
-          <div>
-            <label className="text-sm">السعر</label>
-            <input value={price} onChange={e => setPrice(e.target.value)} className="input" />
-          </div>
-          <div>
-            <label className="text-sm">التغير %</label>
-            <input value={change} onChange={e => setChange(e.target.value)} className="input" />
-          </div>
-          <button onClick={add} className="btn-primary">إضافة</button>
+    <div className="min-h-screen bg-gray-100">
+      <Navigation />
+      <div className="p-8">
+        <div className="max-w-6xl mx-auto">
+          <h1 className="text-3xl font-bold mb-8">محفظتي الاستثمارية</h1>
+          <Portfolio currentPrices={currentPrices} />
         </div>
       </div>
-      <Portfolio />
     </div>
   );
 }
