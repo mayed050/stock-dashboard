@@ -1,14 +1,10 @@
-import '@/styles/globals.css';
-import { PortfolioProvider } from '@/context/PortfolioContext';
-import Navigation from '@/components/Navigation';
+import { PortfolioProvider } from '../context/PortfolioContext';
+import '../styles/globals.css';
 
-export default function MyApp({ Component, pageProps }) {
+export default function App({ Component, pageProps }) {
   return (
     <PortfolioProvider>
-      <Navigation />
-      <main className="container mx-auto px-4 py-6">
-        <Component {...pageProps} />
-      </main>
+      <Component {...pageProps} />
     </PortfolioProvider>
   );
 }
