@@ -2,9 +2,37 @@
 @tailwind components;
 @tailwind utilities;
 
-:root { color-scheme: light; }
-body { @apply bg-gray-50 text-gray-900; }
-.container { @apply max-w-7xl; }
+/* Custom styles */
+html {
+  direction: rtl;
+}
 
-.input { @apply border rounded-xl px-3 py-2 bg-white shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500; }
-.btn-primary { @apply px-4 py-2 rounded-2xl bg-indigo-600 text-white hover:bg-indigo-700 shadow; }
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Chart.js custom styles */
+.chart-container {
+  position: relative;
+  height: 400px;
+  width: 100%;
+}
