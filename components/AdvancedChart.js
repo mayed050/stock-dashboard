@@ -1,34 +1,125 @@
-import dynamic from 'next/dynamic';
-import { useMemo } from 'react';
-const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
+import { Line } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, TimeScale } from 'chart.js';
+import 'chartjs-adapter-date-fns';
 
-export default function AdvancedChart({ ohlc = [], title = 'Advanced Chart' }) {
-  const data = useMemo(() => {
-    const x = ohlc.map(r => r.date);
-    const open = ohlc.map(r => r.open);
-    const high = ohlc.map(r => r.high);
-    const low = ohlc.map(r => r.low);
-    const close = ohlc.map(r => r.close);
-    return [
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, TimeScale);
+
+export default function AdvancedChart({ historicalData }) {
+  const data = {
+    labels: historicalData?.dates || [],
+    datasets: [
       {
-        type: 'candlestick',
-        x, open, high, low, close,
-        name: 'OHLC'
-      }
-    ];
-  }, [ohlc]);
+        label: 'سعر الإغلاق',
+        data: historicalData?.prices || [],
+        borderColor: 'rgb(59, 130, 246)',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        tension: 0.1,
+        yAxisID: 'y',
+      },
+      {
+        label: 'حجم التداول',
+        data: historicalData?.volumes || [],
+        borderColor: 'rgb(34, 197, 94)',
+        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+        tension: 0.1,
+        yAxisID: 'y1',
+        type: 'bar',
+      },
+    ],
+  };
 
-  const layout = {
-    title,
-    autosize: true,
-    margin: { t: 40, r: 20, b: 40, l: 50 },
-    xaxis: { type: 'date', showgrid: false },
-    yaxis: { tickformat: ',.2f' },
+  const options = {
+    responsive: true,
+    interaction: {
+      mode: 'index',
+      intersect: false,
+    },
+    plugins: {
+      legend: {
+        position: 'top',
+        labels: {
+          usePointStyle: true,
+          padding: 20,
+        },
+      },
+      title: {
+        display: true,
+        text: 'الأداء التاريخي للسهم',
+        font: {
+          size: 16,
+        },
+      },
+      tooltip: {
+        mode: 'index',
+        intersect: false,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        titleColor: 'white',
+        bodyColor: 'white',
+        borderColor: 'rgba(255, 255, 255, 0.1)',
+        borderWidth: 1,
+        padding: 10,
+        displayColors: true,
+        callbacks: {
+          label: function(context) {
+            let label = context.dataset.label || '';
+            if (label) {
+              label += ': ';
+            }
+            if (context.parsed.y !== null) {
+              if (context.datasetIndex === 0) {
+                label += context.parsed.y.toFixed(2) + ' درهم';
+              } else {
+                label += context.parsed.y.toLocaleString() + ' حجم';
+              }
+            }
+            return label;
+          }
+        }
+      },
+    },
+    scales: {
+      x: {
+        type: 'time',
+        time: {
+          unit: 'day',
+          displayFormats: {
+            day: 'MMM dd',
+          },
+        },
+        grid: {
+          display: false,
+        },
+      },
+      y: {
+        type: 'linear',
+        display: true,
+        position: 'left',
+        title: {
+          display: true,
+          text: 'السعر (درهم)',
+        },
+        grid: {
+          color: 'rgba(0, 0, 0, 0.05)',
+        },
+      },
+      y1: {
+        type: 'linear',
+        display: true,
+        position: 'right',
+        title: {
+          display: true,
+          text: 'حجم التداول',
+        },
+        grid: {
+          drawOnChartArea: false,
+        },
+      },
+    },
   };
 
   return (
-    <div className="w-full h-[420px]">
-      <Plot data={data} layout={layout} useResizeHandler style={{ width: '100%', height: '100%' }} />
+    <div className="bg-white p-4 rounded-lg shadow">
+      <Line options={options} data={data} />
     </div>
   );
 }
