@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
 import Navigation from '../../components/Navigation';
-import AdvancedChart from '../../components/AdvancedChart';
 import TechnicalIndicators from '../../components/TechnicalIndicators';
 import DownloadReport from '../../components/DownloadReport';
+
+const AdvancedChart = dynamic(() => import('../../components/AdvancedChart'), { ssr: false });
 
 export default function StockDetail() {
   const router = useRouter();
