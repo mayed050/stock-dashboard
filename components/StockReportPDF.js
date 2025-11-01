@@ -1,11 +1,17 @@
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
+import { Document, Page, Text, View, StyleSheet, Font } from '@react-pdf/renderer';
 import { format } from 'date-fns';
 import { ar } from 'date-fns/locale';
+
+// Register Arabic font for proper text rendering
+Font.register({
+  family: 'Amiri',
+  src: 'https://raw.githubusercontent.com/google/fonts/main/ofl/amiri/Amiri-Regular.ttf',
+});
 
 const styles = StyleSheet.create({
   page: {
     padding: 30,
-    fontFamily: 'Arial',
+    fontFamily: 'Amiri',
   },
   header: {
     textAlign: 'center',
