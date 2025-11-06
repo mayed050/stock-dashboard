@@ -16,7 +16,7 @@ export default function Portfolio({ currentPrices }) {
   const handleAction = () => {
     if (!selectedStock || !quantity) return;
     
-    const qty = parseInt(quantity);
+    const qty = parseInt(quantity, 10);
     const price = currentPrices[selectedStock] || 0;
     
     if (action === 'buy') {
