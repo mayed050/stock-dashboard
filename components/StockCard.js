@@ -1,5 +1,7 @@
 import { useRouter } from 'next/router';
-import LineChart from './LineChart';
+import dynamic from 'next/dynamic';
+
+const LineChart = dynamic(() => import('./LineChart'), { ssr: false });
 
 export default function StockCard({ name, data }) {
   const router = useRouter();
