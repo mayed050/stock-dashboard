@@ -19,7 +19,10 @@ export default function StockDetail() {
           setStockData(data[symbol.toUpperCase()]);
           setLoading(false);
         })
-        .catch(error => console.error('Error fetching data:', error));
+        .catch(error => {
+          console.error('Error fetching data:', error);
+          setLoading(false);
+        });
     }
   }, [symbol]);
 
